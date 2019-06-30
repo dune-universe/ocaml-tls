@@ -58,7 +58,7 @@ type error = [
   | `NoConfiguredCiphersuite of Ciphersuite.ciphersuite list
   | `NoConfiguredVersion of Core.tls_version
   | `NoConfiguredHash of Nocrypto.Hash.hash list
-  | `NoMatchingCertificateFound of string
+  | `NoMatchingCertificateFound of [`host] Domain_name.t
   | `NoCertificateConfigured
   | `CouldntSelectCertificate
 ]

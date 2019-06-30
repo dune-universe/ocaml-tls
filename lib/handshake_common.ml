@@ -9,7 +9,7 @@ let empty = function [] -> true | _ -> false
 let change_cipher_spec =
   (Packet.CHANGE_CIPHER_SPEC, Writer.assemble_change_cipher_spec)
 
-let hostname (h : client_hello) : string option =
+let hostname (h : client_hello) : [`host] Domain_name.t option =
   map_find ~f:(function `Hostname s -> Some s | _ -> None) h.extensions
 
 let get_secure_renegotiation exts =

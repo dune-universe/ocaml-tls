@@ -148,12 +148,14 @@ let validate_keytype_usage certificate ciphersuite =
        Certificate.supports_extended_usage ~not_present:true cert `Any)
       (`Fatal `InvalidCertificateExtendedUsage)
 
+let peer_name cfg =
+  match cfg.peer_name with
+  | None   -> None
+  | Some x -> Some ((if cfg.wildcard_enabled then`Wildcard else `Strict),  x)
+
 let answer_certificate_RSA state session cs raw log =
   let cfg = state.config in
-  let peer_name = match cfg.peer_name with
-    | None   -> None
-    | Some x -> Some (`Wildcard x)
-  in
+  let peer_name = peer_name cfg in
   validate_chain cfg.authenticator cs peer_name >>= fun (peer_certificate, received_certificates, peer_certificate_chain, trust_anchor) ->
   validate_keytype_usage peer_certificate session.ciphersuite >>= fun () ->
   let session = { session with received_certificates ; peer_certificate ; peer_certificate_chain ; trust_anchor } in
@@ -174,10 +176,7 @@ let answer_certificate_RSA state session cs raw log =
   ({ state with machina = Client machina }, [])
 
 let answer_certificate_DHE_RSA state session cs raw log =
-  let peer_name = match state.config.peer_name with
-    | None   -> None
-    | Some x -> Some (`Wildcard x)
-  in
+  let peer_name = peer_name state.config in
   validate_chain state.config.authenticator cs peer_name >>= fun (peer_certificate, received_certificates, peer_certificate_chain, trust_anchor) ->
   validate_keytype_usage peer_certificate session.ciphersuite >|= fun () ->
   let session = { session with received_certificates ; peer_certificate ; peer_certificate_chain ; trust_anchor } in

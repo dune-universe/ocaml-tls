@@ -11,6 +11,7 @@ type tracer = Sexplib.Sexp.t -> unit
 let resolve host service =
   let open Lwt_unix in
   getprotobyname "tcp" >>= fun tcp ->
+  let host = Domain_name.to_string host in
   getaddrinfo host service [AI_PROTOCOL tcp.p_proto] >>= function
   | []    ->
       let msg = Printf.sprintf "no address for %s:%s" host service in

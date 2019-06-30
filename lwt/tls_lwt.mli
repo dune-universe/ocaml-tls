@@ -34,7 +34,7 @@ module Unix : sig
 
   (** [client_of_fd ?tracer client ~host fd] is [t], after client-side
       TLS handshake of [fd] using [client] configuration and [host]. *)
-  val client_of_fd : ?trace:tracer -> Tls.Config.client -> ?host:string -> Lwt_unix.file_descr -> t Lwt.t
+  val client_of_fd : ?trace:tracer -> Tls.Config.client -> ?host:[`host] Domain_name.t -> Lwt_unix.file_descr -> t Lwt.t
 
   (** [accept ?tracer server fd] is [t, sockaddr], after accepting a
       client on [fd] and upgrading to a TLS connection. *)
@@ -42,7 +42,7 @@ module Unix : sig
 
   (** [connect ?tracer client (host, port)] is [t], after successful
       connection to [host] on [port] and TLS upgrade. *)
-  val connect : ?trace:tracer -> Tls.Config.client -> string * int -> t Lwt.t
+  val connect : ?trace:tracer -> Tls.Config.client -> [`host] Domain_name.t * int -> t Lwt.t
 
   (** {2 Common stream operations} *)
 
@@ -107,13 +107,13 @@ val accept :
     and output channel of a TLS connection to [host] on [port] using
     the [client] configuration. *)
 val connect_ext :
-  ?trace:tracer -> Tls.Config.client -> string * int -> (ic * oc) Lwt.t
+  ?trace:tracer -> Tls.Config.client -> [`host] Domain_name.t * int -> (ic * oc) Lwt.t
 
 (** [connect ?trace authenticator (host, port)] is [ic, oc], the input
     and output channel of a TLS connection to [host] on [port] using the
     default configuration and the [authenticator]. *)
 val connect :
-  ?trace:tracer -> X509_lwt.authenticator -> string * int -> (ic * oc) Lwt.t
+  ?trace:tracer -> X509_lwt.authenticator -> [`host] Domain_name.t * int -> (ic * oc) Lwt.t
 
 (** [of_t t] is [ic, oc], the input and output channel.  [close]
     defaults to [!Unix.close]. *)

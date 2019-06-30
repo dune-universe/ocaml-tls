@@ -167,8 +167,14 @@ let parse_hostnames buf =
        let entrylen = BE.get_uint16 buf 1 in
        let rt = shift buf (3 + entrylen) in
        match typ with
-       | 0 -> let hostname = copy buf 3 entrylen in
-              (Some hostname, rt)
+       | 0 ->
+         let name = copy buf 3 entrylen in
+         begin match Domain_name.of_string name with
+           | Error _ -> (* TODO log *) (None, rt)
+           | Ok domain -> match Domain_name.host domain with
+             | Error _ -> (* TODO log *) (None, rt)
+             | Ok host -> (Some host, rt)
+         end
        | _ -> (None, rt)
      in
      let list_length = BE.get_uint16 buf 0 in

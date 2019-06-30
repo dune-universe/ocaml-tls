@@ -72,7 +72,7 @@ module SessionID = struct
 end
 
 type client_extension = [
-  | `Hostname of string
+  | `Hostname of [`host] Domain_name.t
   | `MaxFragmentLength of max_fragment_length
   | `EllipticCurves of named_curve_type list
   | `ECPointFormats of ec_point_format list
@@ -179,13 +179,13 @@ type epoch_data = {
   peer_random            : Cstruct.t ;
   peer_certificate_chain : X509.Certificate.t list ;
   peer_certificate       : X509.Certificate.t option ;
-  peer_name              : string option ;
+  peer_name              : [`host] Domain_name.t option ;
   trust_anchor           : X509.Certificate.t option ;
   received_certificates  : X509.Certificate.t list ;
   own_random             : Cstruct.t ;
   own_certificate        : X509.Certificate.t list ;
   own_private_key        : Nocrypto.Rsa.priv option ;
-  own_name               : string option ;
+  own_name               : [`host] Domain_name.t option ;
   master_secret          : master_secret ;
   session_id             : SessionID.t ;
   extended_ms            : bool ;

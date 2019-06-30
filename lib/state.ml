@@ -88,7 +88,7 @@ type session_data = {
   own_private_key        : Nocrypto.Rsa.priv option ;
   master_secret          : master_secret ;
   renegotiation          : reneg_params ; (* renegotiation data *)
-  own_name               : string option ;
+  own_name               : [`host] Domain_name.t option ;
   client_auth            : bool ;
   session_id             : Cstruct.t ;
   extended_ms            : bool ;
@@ -168,7 +168,7 @@ type error = [
   | `NoConfiguredCiphersuite of Ciphersuite.ciphersuite list
   | `NoConfiguredVersion of tls_version
   | `NoConfiguredHash of Hash.hash list
-  | `NoMatchingCertificateFound of string
+  | `NoMatchingCertificateFound of [`host] Domain_name.t
   | `NoCertificateConfigured
   | `CouldntSelectCertificate
 ]

@@ -40,7 +40,7 @@ module Make (F : Mirage_flow_lwt.S) : sig
   (** [client_of_flow ~trace client ~host flow] upgrades the existing connection
       to TLS using the [client] configuration, using [host] as peer name. *)
   val client_of_flow :
-    ?trace:tracer -> Tls.Config.client -> ?host:string -> FLOW.flow ->
+    ?trace:tracer -> Tls.Config.client -> ?host:[`host] Domain_name.t -> FLOW.flow ->
     (flow, write_error) result Lwt.t
 
   (** [server_of_flow ?tracer server flow] upgrades the flow to a TLS

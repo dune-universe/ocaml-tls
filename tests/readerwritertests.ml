@@ -2,6 +2,8 @@ open Tls
 open OUnit2
 open Testlib
 
+let host name = Domain_name.(host_exn (of_string_exn name))
+
 let readerwriter_version v _ =
   let buf = Writer.assemble_protocol_version v in
   match Reader.parse_version buf with
@@ -376,15 +378,15 @@ let rw_handshake_client_hello_vals =
                         ciphersuites = Packet.([ TLS_NULL_WITH_NULL_NULL ; TLS_RSA_WITH_NULL_MD5 ; TLS_RSA_WITH_AES_256_CBC_SHA ]) ;
                         sessionid = (Some client_random) } ;
 
-          ClientHello { ch with extensions = [ `Hostname "foobar" ] } ;
-          ClientHello { ch with extensions = [ `Hostname "foobarblubb" ] } ;
+          ClientHello { ch with extensions = [ `Hostname (host "foobar") ] } ;
+          ClientHello { ch with extensions = [ `Hostname (host "foobarblubb") ] } ;
 
-          ClientHello { ch with extensions = [ `Hostname "foobarblubb" ; `EllipticCurves Packet.([SECP521R1; SECP384R1]) ] } ;
+          ClientHello { ch with extensions = [ `Hostname (host "foobarblubb") ; `EllipticCurves Packet.([SECP521R1; SECP384R1]) ] } ;
 
           ClientHello { ch with extensions = [ `ALPN ["h2"; "http/1.1"] ] } ;
 
           ClientHello { ch with extensions = [
-                             `Hostname "foobarblubb" ;
+                             `Hostname (host "foobarblubb") ;
                              `EllipticCurves Packet.([SECP521R1; SECP384R1]) ;
                              `ECPointFormats Packet.([UNCOMPRESSED ; ANSIX962_COMPRESSED_PRIME ;   ANSIX962_COMPRESSED_CHAR2 ]) ;
                              `SignatureAlgorithms [(`MD5, Packet.RSA)] ;
@@ -394,13 +396,13 @@ let rw_handshake_client_hello_vals =
           ClientHello { ch with
                         ciphersuites = Packet.([ TLS_NULL_WITH_NULL_NULL ; TLS_RSA_WITH_NULL_MD5 ; TLS_RSA_WITH_AES_256_CBC_SHA ]) ;
                         sessionid = (Some client_random) ;
-                        extensions = [ `Hostname "foobarblubb" ] } ;
+                        extensions = [ `Hostname (host "foobarblubb") ] } ;
 
           ClientHello { ch with
                         ciphersuites = Packet.([ TLS_NULL_WITH_NULL_NULL ; TLS_RSA_WITH_NULL_MD5 ; TLS_RSA_WITH_AES_256_CBC_SHA ]) ;
                         sessionid = (Some client_random) ;
                         extensions = [
-                             `Hostname "foobarblubb" ;
+                             `Hostname (host "foobarblubb") ;
                              `EllipticCurves Packet.([SECP521R1; SECP384R1]) ;
                              `ECPointFormats Packet.([UNCOMPRESSED ; ANSIX962_COMPRESSED_PRIME ;   ANSIX962_COMPRESSED_CHAR2 ]) ;
                              `SignatureAlgorithms [(`SHA1, Packet.ANONYMOUS); (`MD5, Packet.RSA)] ;
@@ -411,7 +413,7 @@ let rw_handshake_client_hello_vals =
                         ciphersuites = Packet.([ TLS_NULL_WITH_NULL_NULL ; TLS_RSA_WITH_NULL_MD5 ; TLS_RSA_WITH_AES_256_CBC_SHA ]) ;
                         sessionid = (Some client_random) ;
                         extensions = [
-                             `Hostname "foobarblubb" ;
+                             `Hostname (host "foobarblubb") ;
                              `EllipticCurves Packet.([SECP521R1; SECP384R1]) ;
                              `ECPointFormats Packet.([UNCOMPRESSED ; ANSIX962_COMPRESSED_PRIME ;   ANSIX962_COMPRESSED_CHAR2 ]) ;
                              `SignatureAlgorithms [(`MD5, Packet.ANONYMOUS); (`SHA1, Packet.RSA)] ;

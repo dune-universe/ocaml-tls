@@ -2,6 +2,7 @@ open Tls
 open OUnit2
 open Testlib
 
+let host name = Domain_name.(host_exn (of_string_exn name))
 
 let good_any_version_parser major minor result _ =
   let ver = list_to_cstruct [ major ; minor ] in
@@ -1194,9 +1195,9 @@ let good_client_hellos =
           ([1; 0; 0; 40; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 0] , ch ) ;
 
           (* some hostname *)
-          ([1; 0; 0; 52; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 12; 0; 0; 0; 8; 0; 6; 0; 0; 3; 102; 111; 111] , { ch with extensions = [`Hostname "foo"] } ) ;
+          ([1; 0; 0; 52; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 12; 0; 0; 0; 8; 0; 6; 0; 0; 3; 102; 111; 111] , { ch with extensions = [`Hostname (host "foo")] } ) ;
           (* some other hostname *)
-          ([1; 0; 0; 59; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 19; 0; 0; 0; 15; 0; 13; 0; 0; 10; 102; 111; 111; 98; 97; 114; 46; 99; 111; 109] , { ch with extensions = [`Hostname "foobar.com"] } ) ;
+          ([1; 0; 0; 59; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 19; 0; 0; 0; 15; 0; 13; 0; 0; 10; 102; 111; 111; 98; 97; 114; 46; 99; 111; 109] , { ch with extensions = [`Hostname (host "foobar.com")] } ) ;
 
           (* max fragment length *)
           ([1; 0; 0; 45; 3; 3] @ rand @ [(* session id *) 0; (* cipher *) 0; 0; (* comp *) 0; (* exts *) 0; 5; 0; 1; 0; 1; 3] , { ch with extensions = [`MaxFragmentLength Packet.TWO_11] } ) ;
@@ -1332,7 +1333,7 @@ let good_client_hellos =
               0x01; 0x00; (* compression *)
               0x00; 0x39; (* extensions *)
               0xff; 0x01; 0x00; 0x01; 0x00; (* secure reneg *)
-              0x00; 0x00; 0x00; 0x0e; 0x00; 0x0c; 0x00; 0x00; 0x09; 0x31; 0x32; 0x37; 0x2e; 0x30; 0x2e; 0x30; 0x2e; 0x31; (* SNI 127.0.0.1 *)
+              0x00; 0x00; 0x00; 0x0e; 0x00; 0x0c; 0x00; 0x00; 0x09; 0x77; 0x77; 0x77; 0x2e; 0x61; 0x2e; 0x63; 0x6f; 0x6d; (* SNI www.a.com *)
               0x00; 0x0d; 0x00; 0x0c; 0x00; 0x0a; 0x06; 0x01; 0x05; 0x01; 0x04; 0x01; 0x02; 0x01; 0x01; 0x01; (* SignatureAlgorithms *)
               0x00; 0x10; 0x00; 0x0e; 0x00; 0x0c; (* ALPN *)
               0x02; 0x68; 0x32;
@@ -1342,7 +1343,7 @@ let good_client_hellos =
                       client_random = list_to_cstruct [ 0xf1; 0xb2; 0x50; 0x16; 0x4b; 0x77; 0x50; 0xb3; 0xdc; 0xcb; 0x1c; 0x6a; 0xae; 0x1a; 0x94; 0x87; 0xc4; 0x17; 0xbb; 0xa4; 0xf7; 0x92; 0xf8; 0x16; 0x56; 0x12; 0x03; 0x38; 0x1e; 0xe5; 0xc1; 0xae ] ;
                       ciphersuites = Packet.([TLS_RSA_WITH_AES_256_CBC_SHA ; TLS_DHE_RSA_WITH_AES_256_CBC_SHA ; TLS_RSA_WITH_AES_128_CBC_SHA ; TLS_DHE_RSA_WITH_AES_128_CBC_SHA ; TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA ; TLS_RSA_WITH_3DES_EDE_CBC_SHA ; TLS_RSA_WITH_RC4_128_SHA ; TLS_RSA_WITH_RC4_128_MD5]) ;
                       extensions = [ `SecureRenegotiation (Cstruct.create 0) ;
-                                     `Hostname "127.0.0.1" ;
+                                     `Hostname (host "www.a.com") ;
                                      `SignatureAlgorithms
                                        [(`SHA512, Packet.RSA) ;
                                         (`SHA384, Packet.RSA) ;

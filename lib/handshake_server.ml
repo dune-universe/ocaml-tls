@@ -135,10 +135,9 @@ let rec find_matching host certs =
 
 let agreed_cert certs hostname =
   let match_host ?default host certs =
-     let host = String.lowercase_ascii host in
-     match find_matching (`Strict host) certs with
+     match find_matching (`Strict, host) certs with
      | Some x -> return x
-     | None   -> match find_matching (`Wildcard host) certs with
+     | None   -> match find_matching (`Wildcard, host) certs with
                  | Some x -> return x
                  | None   -> match default with
                              | Some c -> return c

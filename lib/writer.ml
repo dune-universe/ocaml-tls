@@ -88,11 +88,12 @@ let assemble_ciphersuite c =
 
 let assemble_hostname host =
   (* 8 bit hostname type; 16 bit length; value *)
-  let vallength = String.length host in
+  let h = Domain_name.to_string host in
+  let vallength = String.length h in
   let buf = create 3 in
   set_uint8 buf 0 0; (* type, only 0 registered *)
   BE.set_uint16 buf 1 vallength;
-  buf <+> (of_string host)
+  buf <+> (of_string h)
 
 let assemble_hostnames hosts =
   assemble_list Two assemble_hostname hosts

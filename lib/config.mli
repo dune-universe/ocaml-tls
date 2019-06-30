@@ -25,7 +25,8 @@ type config = private {
   hashes            : Hash.hash list ; (** ordered list of supported hash algorithms (regarding preference) *)
   use_reneg         : bool ; (** endpoint should accept renegotiation requests *)
   authenticator     : X509.Authenticator.t option ; (** optional X509 authenticator *)
-  peer_name         : string option ; (** optional name of other endpoint (used for SNI RFC4366) *)
+  wildcard_enabled  : bool ; (** whether to accept wildcard certificates (default: true) *)
+  peer_name         : [`host] Domain_name.t option ; (** optional name of other endpoint (used for SNI RFC4366) *)
   own_certificates  : own_cert ; (** optional default certificate chain and other certificate chains *)
   acceptable_cas    : X509.Distinguished_name.t list ; (** ordered list of acceptable certificate authorities *)
   session_cache     : session_cache ;
@@ -55,7 +56,8 @@ val sexp_of_server : server -> Sexplib.Sexp.t
     @raise Invalid_argument if the configuration is invalid *)
 val client :
   authenticator   : X509.Authenticator.t ->
-  ?peer_name      : string ->
+  ?wildcard_enabled : bool ->
+  ?peer_name      : [`host] Domain_name.t ->
   ?ciphers        : Ciphersuite.ciphersuite list ->
   ?version        : tls_version * tls_version ->
   ?hashes         : Hash.hash list ->
@@ -81,7 +83,7 @@ val server :
   unit -> server
 
 (** [peer client name] is [client] with [name] as [peer_name] *)
-val peer : client -> string -> client
+val peer : client -> [`host] Domain_name.t -> client
 
 (** {1 Note on ALPN protocol selection}
 

@@ -28,7 +28,8 @@ type config = {
   (* signatures        : Packet.signature_algorithm_type list ; *)
   use_reneg         : bool ;
   authenticator     : X509.Authenticator.t option ;
-  peer_name         : string option ;
+  wildcard_enabled  : bool ;
+  peer_name         : [`host] Domain_name.t option ;
   own_certificates  : own_cert ;
   acceptable_cas    : X509.Distinguished_name.t list ;
   session_cache     : session_cache ;
@@ -91,6 +92,7 @@ let default_config = {
   hashes            = default_hashes ;
   use_reneg         = false ;
   authenticator     = None ;
+  wildcard_enabled  = true ;
   peer_name         = None ;
   own_certificates  = `None ;
   acceptable_cas    = [] ;
@@ -154,18 +156,15 @@ module StringSet = Set.Make(String)
 
 let non_overlapping cs =
   let namessets =
-    let nameslists =
-      filter_map cs ~f:(function
-          | (s :: _, _) -> Some s
-          | _           -> None)
-      |> List.map X509.Certificate.hostnames
-    in
-    List.map (fun xs -> List.fold_right StringSet.add xs StringSet.empty) nameslists
+    filter_map cs ~f:(function
+        | (s :: _, _) -> Some s
+        | _           -> None)
+    |> List.map X509.Certificate.hostnames
   in
   let rec check = function
     | []    -> ()
     | s::ss -> if not (List.for_all
-                         (fun ss' -> StringSet.is_empty (StringSet.inter s ss'))
+                         (fun ss' -> Domain_name.Set.is_empty (Domain_name.Set.inter s ss'))
                          ss)
                then
                  invalid_arg "overlapping names in certificates"
@@ -231,7 +230,7 @@ let with_acceptable_cas conf acceptable_cas = { conf with acceptable_cas }
 let (<?>) ma b = match ma with None -> b | Some a -> a
 
 let client
-  ~authenticator ?peer_name ?ciphers ?version ?hashes ?reneg ?certificates ?cached_session ?alpn_protocols () =
+  ~authenticator ?(wildcard_enabled = true) ?peer_name ?ciphers ?version ?hashes ?reneg ?certificates ?cached_session ?alpn_protocols () =
   let config =
     { default_config with
         authenticator     = Some authenticator ;
@@ -240,6 +239,7 @@ let client
         hashes            = hashes         <?> default_config.hashes ;
         use_reneg         = reneg          <?> default_config.use_reneg ;
         own_certificates  = certificates   <?> default_config.own_certificates ;
+        wildcard_enabled ;
         peer_name         = peer_name ;
         cached_session    = cached_session ;
         alpn_protocols    = alpn_protocols <?> default_config.alpn_protocols ;
