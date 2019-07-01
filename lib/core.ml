@@ -191,3 +191,36 @@ type epoch_data = {
   extended_ms            : bool ;
   alpn_protocol          : string option ;
 }
+
+let version_to_string = function
+  | TLS_1_0 -> "1.0"
+  | TLS_1_1 -> "1.1"
+  | TLS_1_2 -> "1.2"
+
+let cipher_to_string = function
+  | `TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 -> "DHE-RSA AES_256_CBC SHA256"
+  | `TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 -> "DHE-RSA AES_128_CBC SHA256"
+  | `TLS_DHE_RSA_WITH_AES_256_CBC_SHA -> "DHE-RSA AES_256_CBC SHA"
+  | `TLS_DHE_RSA_WITH_AES_128_CBC_SHA -> "DHE-RSA AES_128_CBC SHA"
+  | `TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA -> "DHE-RSA 3DES_CBC SHA"
+  | `TLS_RSA_WITH_AES_256_CBC_SHA256 -> "RSA AES_256_CBC SHA256"
+  | `TLS_RSA_WITH_AES_128_CBC_SHA256 -> "RSA AES_128_CBC SHA256"
+  | `TLS_RSA_WITH_AES_256_CBC_SHA -> "RSA AES_256_CBC SHA"
+  | `TLS_RSA_WITH_AES_128_CBC_SHA -> "RSA AES_256_CBC SHA"
+  | `TLS_RSA_WITH_3DES_EDE_CBC_SHA -> "RSA 3DES_CBC SHA"
+  | `TLS_RSA_WITH_RC4_128_SHA -> "RSA RC4_128 SHA"
+  | `TLS_RSA_WITH_RC4_128_MD5 -> "RSA RC4_128 SHA"
+  | `TLS_RSA_WITH_AES_128_GCM_SHA256 -> "RSA AES_128_GCM SHA256"
+  | `TLS_RSA_WITH_AES_256_GCM_SHA384 -> "RSA AES_128_GCM SHA384"
+  | `TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 -> "DHE-RSA AES_128_GCM SHA256"
+  | `TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 -> "DHE-RSA AES_128_GCM SHA384"
+  | `TLS_DHE_RSA_WITH_AES_256_CCM -> "DHE-RSA AES_256_CCM"
+  | `TLS_DHE_RSA_WITH_AES_128_CCM -> "DHE-RSA AES_128_CCM"
+  | `TLS_RSA_WITH_AES_256_CCM -> "RSA AES_256_CCM"
+  | `TLS_RSA_WITH_AES_128_CCM -> "RSA AES_128_CCM"
+
+let pp_epoch_data ppf record =
+  Format.fprintf ppf "TLS version %s cipher %s sni %s"
+    (version_to_string record.protocol_version)
+    (cipher_to_string record.ciphersuite)
+    (match record.own_name with None -> "none" | Some x -> Domain_name.to_string x)
