@@ -233,17 +233,17 @@ module X509 (KV : Mirage_kv_lwt.RO) (C: Mirage_clock.PCLOCK) = struct
         read kv ca_roots_file >>= fun data ->
         match X509.Certificate.decode_pem_multiple data with
         | Ok cas -> Lwt.return (X509.Authenticator.chain_of_trust ?crls:None ~time cas)
-        | Error (`Parse e) -> Lwt.fail_with ("decode error " ^ e)
+        | Error (`Msg e) -> Lwt.fail_with ("decode error " ^ e)
 
   let certificate kv =
     let read name =
       read kv (Mirage_kv.Key.v (name ^ ".pem")) >>= fun data ->
       match X509.Certificate.decode_pem_multiple data with
-      | Error (`Parse e) -> Lwt.fail_with ("failed to parse certificates " ^ e)
+      | Error (`Msg e) -> Lwt.fail_with ("failed to parse certificates " ^ e)
       | Ok certs ->
         read kv (Mirage_kv.Key.v (name ^ ".key")) >>= fun pem ->
         match X509.Private_key.decode_pem pem with
-        | Error (`Parse e) -> Lwt.fail_with ("failed to parse private key " ^ e)
+        | Error (`Msg e) -> Lwt.fail_with ("failed to parse private key " ^ e)
         | Ok (`RSA key) -> Lwt.return (certs, key)
     in function | `Default   -> read default_cert
                 | `Name name -> read name
